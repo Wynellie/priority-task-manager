@@ -1,0 +1,14 @@
+.idea/
+
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+ENV/
+
+db.sqlite3
+media/
+staticfiles/
+.env
+
+Thumbs.db

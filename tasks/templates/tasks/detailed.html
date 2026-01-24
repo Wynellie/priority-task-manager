@@ -1,0 +1,22 @@
+{% extends 'tasks/base.html'%}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <div>
+        {{field.label}}
+        {{field}}
+    </div>
+    
+    {%endfor%}
+    <button type = "submit">Отправить</button>
+
+</form>
+<form action = "{% url 'delete' task.id%}" method="post">
+        {% csrf_token %}
+        <button type = "submit" onclick="return confirm('Точно удалять?')"> Удалить</button>
+</form>
+
+{% endblock %}

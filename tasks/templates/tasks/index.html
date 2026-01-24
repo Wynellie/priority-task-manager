@@ -1,0 +1,49 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Список задач{% endblock %}
+
+{% block content %}
+    <div class = "header">
+        <h2 style = "margin: 0px;">Мои задачи</h2>
+    </div>
+
+    <div class = "main-content">
+        {% for task in tasks %}
+        <div class="task-card">
+            <div class = "card-header"> 
+                <div class = "card-title">  {{ task.title }}</div>
+                <span class = "card-status {{task.status}}"> {{ task.get_status_display }}</span>
+            </div>
+            <div class = "card-meta meta-row">
+                <span class = "card-priority"> Приоритет: {{ task.get_priority_display }}</span>
+                <span class = "card-deadline"> {{ task.deadline|date:"d.m" }} </span>
+            </div>
+                
+                <span class = "card-description">{{ task.description|truncatewords:20 }}</span>
+            <div class = "buttons-row">
+                <a href="{% url 'detailed' task.id %}" class = "btn-primary">Открыть</a>
+                <form action = "{% url 'delete' task.id %}" method = "post">
+                    {% csrf_token %}
+                    <button type="submit" class = "btn-delete" onclick="return confirm('Точно удалить?')">Удалить</button>
+                </form>
+            </div>
+
+</form>
+            
+
+        </div>
+        {% endfor %}
+        <div class = "new-task-card">
+            <form method = "post">
+                {% csrf_token %}
+                {%for field in form%}
+                <div class = "form-{{field.name}}'">
+                    {{field}}
+                </div>
+                {%endfor%}
+                <button type = "submit" class = "new-task-button"> Отправить </button>
+            </form>
+        </div>
+    </div>
+    
+{% endblock %}

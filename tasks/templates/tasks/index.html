@@ -1,5 +1,5 @@
 {% extends 'tasks/base.html' %}
-
+{% load static %}
 {% block title %}Список задач{% endblock %}
 
 {% block content %}
@@ -9,7 +9,7 @@
 
     <div class = "main-content">
         {% for task in tasks %}
-        <div class="task-card">
+        <div class="task-card" id="task-{{ task.id }}">
             <div class = "card-header"> 
                 <div class = "card-title">  {{ task.title }}</div>
                 <span class = "card-status {{task.status}}"> {{ task.get_status_display }}</span>
@@ -22,15 +22,11 @@
                 <span class = "card-description">{{ task.description|truncatewords:20 }}</span>
             <div class = "buttons-row">
                 <a href="{% url 'detailed' task.id %}" class = "btn-primary">Открыть</a>
-                <form action = "{% url 'delete' task.id %}" method = "post">
+                <form action = "{% url 'delete' task.id %}" method = "post" class="js-delete-form">
                     {% csrf_token %}
-                    <button type="submit" class = "btn-delete" onclick="return confirm('Точно удалить?')">Удалить</button>
+                    <button type="submit">Удалить</button>
                 </form>
             </div>
-
-</form>
-            
-
         </div>
         {% endfor %}
         <div class = "new-task-card">
@@ -45,5 +41,52 @@
             </form>
         </div>
     </div>
-    
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Используем родительский контейнер дл
+    const container = document.querySelector('.main-content');
+
+    container.addEventListener('submit', function(event) {
+        // Проверяем, что событие пришло именно от формы удаления
+        const form = event.target.closest('.js-delete-form');
+        if (!form) return;
+
+        // Останавливаем стандартную отправку
+        event.preventDefault();
+
+        const url = form.action;
+        const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        if (confirm('Точно удалить эту задачу?')) {
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка сервера');
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'ok') {
+                    // Находим ближайшую карточку задачи и удаляем её из DOM
+                    const card = form.closest('.task-card');
+                    if (card) {
+                        card.remove();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Не удалось удалить задачу');
+            });
+        }
+    });
+});
+
+
+</script>
 {% endblock %}

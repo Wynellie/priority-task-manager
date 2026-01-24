@@ -24,11 +24,6 @@ body {
     font-family: 'Manrope', sans-serif; 
 }
 
-a {
-    color: #ebebeb;
-    text-decoration: none;
-}
-
 .container {
     display: grid;
     grid-template-areas:
@@ -57,6 +52,8 @@ nav {
     background-color: var(--light-accent);
     min-width: 50px;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
 }
 
 main {
@@ -71,8 +68,11 @@ footer {
     padding: 10px;
     font-family: 'Segoe UI';
     font-weight: 500;
+    display:flex;
 }
-
+.footer-text{
+    margin-left: auto;
+}
 .main-content {
     display: flex;
     justify-content: space-evenly;
@@ -82,13 +82,23 @@ footer {
 .nav-menu{
     display:flex;
     flex-direction:column;
+    flex-grow: 1;
+    gap:10px;
 }
 
-.nav-button{
-    background: transparent;
+.nav-btn, .nav-link {
+    text-decoration: none;
+    background: none;
     border: none;
     padding: 0;
     color: #ebebeb;
+    font-size: 16px;
+    margin : 10px 5px;
+}
+
+.logout-form {
+    margin-top: auto;
+    margin-bottom: 0;
 }
 
 .task-card {

@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect, get_list_or_404
 from django import views
 from .models import Task
@@ -68,15 +68,14 @@ class DetailedView(views.View):
 
 class Delete(LoginRequiredMixin, views.View):
     def post(self,request,pk):
-        task = get_object_or_404(Task,pk=pk)
-
-        if request.user == task.user:
-            task.delete()
-            messages.success(request,'Задача удалена!')
-
+        if (request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'):
+            task = get_object_or_404(Task, pk=pk)
+            if request.user == task.user:
+                task.delete()
+            return JsonResponse({'status':'ok',
+                                 'message':'Задача удалена!'
+                                 })
         return redirect('index')
-
-
 
 class RegisterView(views.View):
     def get(self,request):

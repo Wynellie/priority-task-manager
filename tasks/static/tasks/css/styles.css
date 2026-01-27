@@ -61,6 +61,7 @@ main {
     background-color: var(--main-color);
 }
 
+
 footer {
     grid-area: footer;
     background-color: var(--dark-color);
@@ -72,6 +73,10 @@ footer {
 }
 .footer-text{
     margin-left: auto;
+}
+
+a {
+    text-decoration: none;
 }
 .main-content {
     display: flex;
@@ -91,7 +96,7 @@ footer {
     background: none;
     border: none;
     padding: 0;
-    color: #ebebeb;
+    color: #fff;
     font-size: 16px;
     margin : 10px 5px;
 }
@@ -106,7 +111,7 @@ footer {
     flex-wrap: wrap;
     flex-direction: column;
     width: 25%;
-    min-width: 280px;
+    min-width: 250px;
     background-color: #ffffff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 20px;
@@ -187,7 +192,7 @@ footer {
     background-color: #555;
     color: white;
     padding: 10px 0;
-    border-radius: 8px; 
+    border-radius: 8px;
     font-weight: 600;
     transition: background-color 0.2s;
 }
@@ -200,6 +205,25 @@ footer {
     margin-left:10px;
     padding:10px 10px;
 }
+@keyframes fadeOut{
+    from {
+        opacity:1;
+    }
+    to {
+        opacity:0;
+    }
+}
+.notif{
+    background-color: #C8E6C9;
+    border-radius: 20%;
+    position: fixed;
+    right:10px;
+    bottom:5%;
+    padding:10px;
+    font-size: 24px;
+    animation: fadeOut 2s ease-in forwards;
+}
+
 .new-task-card {
     display: flex;
     flex-wrap: wrap;
@@ -217,4 +241,49 @@ footer {
 .new-task-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.js-delete-form{
+    margin: 0;
+}
+.js-delete-form button{
+    margin-left: 15px;
+    padding: 10px;
+    height: 100%;
+    background-color: #c29b9b;
+    color: #fff;
+    border: none;
+    border-radius: 10%;
+    font-weight: 600;
+}
+.new-task-card input, 
+.new-task-card textarea, 
+.new-task-card select {
+    width: 100%;
+    border-radius: 8px;
+    font-family: 'Manrope';
+    min-height: 20px;
+    margin-bottom: 10px;
+    resize: none;
+}
+
+.detailed-form{
+    display:flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content:center;
+}
+
+
+.detailed-form input,
+.detailed-form textarea,
+.detailed-form select{
+    min-width: 80%;
+    min-height:40px;
+    margin-top: 20px;
+    margin-left:5%;
+    border-radius: 8px;
+    font-family: 'Manrope';
+    font-size: 15px;
+    resize:none;
 }

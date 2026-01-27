@@ -30,60 +30,43 @@
         </div>
         {% endfor %}
         <div class = "new-task-card">
-            <form method = "post">
+            <form method = "post" class = "js-new-task-card">
                 {% csrf_token %}
                 {%for field in form%}
-                <div class = "form-{{field.name}}'">
+                <div class = "form-{{field.name}}">
                     {{field}}
                 </div>
                 {%endfor%}
-                <button type = "submit" class = "new-task-button"> Отправить </button>
+                <button type = "submit" class = "btn-primary"> Отправить </button>
             </form>
         </div>
     </div>
-
+<script src = "{% static 'tasks/js/main.js' %}"> </script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Используем родительский контейнер дл
-    const container = document.querySelector('.main-content');
+    const man = new Manager();
+    // создаем новую карточку
+    const createForm = document.querySelector('.js-new-task-card');
 
-    container.addEventListener('submit', function(event) {
-        // Проверяем, что событие пришло именно от формы удаления
-        const form = event.target.closest('.js-delete-form');
-        if (!form) return;
+    createForm.addEventListener('submit', function(e) {
+        e.preventDefault();
 
-        // Останавливаем стандартную отправку
-        event.preventDefault();
+        const formData = new FormData(this);
+        // надо добавить отрисовку карточки
+        man.createTask(this.action, formData);
+});
+    // удаляем карточку
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.querySelector('.main-content');
 
-        const url = form.action;
-        const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+        container.addEventListener('submit', function(event) {
+            const form = event.target.closest('.js-delete-form');
+            if (!form) return;
 
-        if (confirm('Точно удалить эту задачу?')) {
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': csrfToken
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Ошибка сервера');
-                return response.json();
-            })
-            .then(data => {
-                if (data.status === 'ok') {
-                    // Находим ближайшую карточку задачи и удаляем её из DOM
-                    const card = form.closest('.task-card');
-                    if (card) {
-                        card.remove();
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                alert('Не удалось удалить задачу');
-            });
-        }
+            event.preventDefault();
+
+            const csrf = form.querySelector('[name=csrfmiddlewaretoken]').value
+            man.deleteTask(form.action, form, csrf)
+            .then((data) => {man.showNotification(data.message)})
     });
 });
 

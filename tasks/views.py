@@ -27,9 +27,14 @@ class IndexView(LoginRequiredMixin, views.View):
         form = TaskForm(request.POST)
         # сверяет, можно ли записать в БД
         if form.is_valid():
-            task = form.save(commit=False)
-            task.user = request.user
-            task.save()
+            if (request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'):
+                task = form.save(commit=False)
+                task.user = request.user
+                task.save()
+                return JsonResponse({
+                    'status' : 'ok',
+                    'message' : 'Задача добавлена!',
+                })
             return redirect('index')
 
         context = {
@@ -39,7 +44,7 @@ class IndexView(LoginRequiredMixin, views.View):
 
         return render(request, 'tasks/index.html', context)
 
-class DetailedView(views.View):
+class DetailedView(LoginRequiredMixin, views.View):
 
     def get(self,request,pk):
         task = get_object_or_404(Task,pk=pk,user=request.user)
@@ -55,8 +60,12 @@ class DetailedView(views.View):
         form = TaskForm(request.POST,instance=task)
 
         if form.is_valid():
-            form.save()
-            messages.success(request,'Задача обновлена!')
+            if (request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'):
+                form.save()
+                return JsonResponse({
+                    'status' : 'ok',
+                    'message' : 'Задача обновлена',
+                })
             return redirect('detailed',pk)
 
         context = {

@@ -2,21 +2,55 @@
 
 {% block content %}
 
-<form method="post">
+<form method="post" class = "detailed-form">
     {% csrf_token %}
     {% for field in form %}
-    <div>
-        {{field.label}}
+    <div style = "min-width: 80%;" class = "detailed-div">
         {{field}}
     </div>
     
     {%endfor%}
-    <button type = "submit">Отправить</button>
+    <button type = "submit" class = "btn-primary" style = "margin-left:5%; margin-top:20px; width: 10%">Отправить</button>
 
 </form>
 <form action = "{% url 'delete' task.id%}" method="post">
         {% csrf_token %}
-        <button type = "submit" onclick="return confirm('Точно удалять?')"> Удалить</button>
+        <button type = "submit" onclick="return confirm('Точно удалять?')" class = "btn-primary" style = "margin-left:5%; margin-top:20px; width: 10%; background-color: #c29b9b; border:none;"> Удалить</button>
 </form>
+
+<script>
+    man
+    notificationPopup = (mes) => {
+    notif = document.createElement('div');
+    notif.className = 'notif';
+    notif.innerHTML = mes;
+    document.body.append(notif);
+    notif.style.opacity = 0;
+    notif.addEventListener('animationend', () => {notif.remove()});
+}
+
+const form = document.body.querySelector('.detailed-form');
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const fd = new FormData(this);
+
+    fetch(this.action, {
+        method : 'POST',
+        headers:{
+            'X-Requested-With': 'XMLHttpRequest',
+            
+        },
+        body : fd,
+    })
+    .then(response => response.json())
+    .then((data) => {
+        if (data['status'] == 'ok'){
+            notificationPopup(data['message']);
+        }
+    })
+
+    
+})
+</script>
 
 {% endblock %}

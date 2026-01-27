@@ -1,39 +1,46 @@
-class TaskManager {
-    constructor() {
-        this.init();
-    }
-
-    init() {
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.js-delete-btn')) {
-                this.deleteTask(e);
-            }
-        });
-    }
-
-    async deleteTask(e) {
-        e.preventDefault();
-        const btn = e.target.closest('.js-delete-btn');
-        const url = btn.dataset.url;
-        const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
+class Manager {
+    #makeRequest = async (url, csrf, form = null) => {
+        const reqData = {
+            method : 'POST',
+            headers : {
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': csrf
             }
-        });
-
-        const data = await response.json();
-        if (data.status === 'ok') {
-            btn.closest('.task-card').remove();
-            // Тут можно вызвать метод показа уведомления
-            this.showNotification(data.message);
         }
-    }
 
-    showNotification(text) {
-        console.log("Уведомление:", text);
+        if (form) {reqData.body = form}
+        else {reqData.headers['X-CSRFToken'] = csrf}
+
+        const response = await fetch(url, reqData);
+
+        return response.json()
+    }
+    showNotification = async (mes) => {
+        let notif = document.createElement('div');
+        notif.className = 'notif';
+        notif.innerHTML = mes;
+        document.body.append(notif);
+        notif.style.opacity = 0;
+        notif.addEventListener('animationend', () => {notif.remove()});
+    }
+    
+    async deleteTask(url, form, csrf){
+        let response = this.#makeRequest(url, csrf);
+        response.then((json) => {
+            if (json.status == 'ok'){
+                form.closest('.task-card').remove();
+            }
+        })
+        return response;
+    }
+    async updateTask(url, form){
+        // довольно странно отправлять null всегда вторым аргументом, хз
+        return this.#makeRequest(url, null, form)
+    }
+    async createTask(url, form){
+        let response = this.#makeRequest(url, null, form);
+        response.then((json) => {
+            this.showNotification(json.message);
+        })
+        return 
     }
 }

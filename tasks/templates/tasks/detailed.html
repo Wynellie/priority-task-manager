@@ -1,56 +1,50 @@
-{% extends 'tasks/base.html'%}
+{% extends 'tasks/base.html' %}
+{% load static %}
+{% block title %}Редактирование задачи{% endblock %}
 
 {% block content %}
+<div class="detailed-container">
+    <div class="detailed-card">
+        
+        <h2 style="text-align: center; margin-top: 0;">Редактирование</h2>
 
-<form method="post" class = "detailed-form">
-    {% csrf_token %}
-    {% for field in form %}
-    <div style = "min-width: 80%;" class = "detailed-div">
-        {{field}}
+        <form method="post" class="detailed-form" id="update-task-form">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="detailed-div">
+                <label>{{ field.label }}</label>
+                {{ field }}
+            </div>
+            {% endfor %}
+        </form>
+
+        <div class="form-actions">
+            <button type="submit" form="update-task-form" class="btn-primary">Сохранить</button>
+            <form action="{% url 'delete' task.id %}" method="post" class="js-delete-form">
+                {% csrf_token %}
+                <button type="submit" class="btn-delete" onclick="return confirm('Точно удалять?')">Удалить</button>
+            </form>
+        </div>
+
     </div>
-    
-    {%endfor%}
-    <button type = "submit" class = "btn-primary" style = "margin-left:5%; margin-top:20px; width: 10%">Отправить</button>
+</div>
 
-</form>
-<form action = "{% url 'delete' task.id%}" method="post">
-        {% csrf_token %}
-        <button type = "submit" onclick="return confirm('Точно удалять?')" class = "btn-primary" style = "margin-left:5%; margin-top:20px; width: 10%; background-color: #c29b9b; border:none;"> Удалить</button>
-</form>
-
+<script src="{% static 'tasks/js/main.js' %}"></script>
 <script>
-    man
-    notificationPopup = (mes) => {
-    notif = document.createElement('div');
-    notif.className = 'notif';
-    notif.innerHTML = mes;
-    document.body.append(notif);
-    notif.style.opacity = 0;
-    notif.addEventListener('animationend', () => {notif.remove()});
-}
-
-const form = document.body.querySelector('.detailed-form');
-form.addEventListener('submit', function(event) {
-    event.preventDefault();
-    const fd = new FormData(this);
-
-    fetch(this.action, {
-        method : 'POST',
-        headers:{
-            'X-Requested-With': 'XMLHttpRequest',
-            
-        },
-        body : fd,
+    const man = new Manager();
+    document.getElementById('update-task-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const resp = await man.updateTask(this.action, new FormData(this));
+        man.showNotification(resp.message);
+    });
+    document.querySelector('.js-delete-form').addEventListener('submit', async function(event){
+        event.preventDefault();
+        const csrf = this.querySelector('[name=csrfmiddlewaretoken]').value;
+        const resp = await man.deleteTask(this.action, csrf);
+        man.showNotification(resp.message);
+        setTimeout(() => {
+            window.location.href = "{% url 'index' %}";
+        }, 1000);
     })
-    .then(response => response.json())
-    .then((data) => {
-        if (data['status'] == 'ok'){
-            notificationPopup(data['message']);
-        }
-    })
-
-    
-})
 </script>
-
 {% endblock %}

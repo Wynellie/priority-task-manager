@@ -3,73 +3,67 @@
 {% block title %}Список задач{% endblock %}
 
 {% block content %}
-    <div class = "header">
-        <h2 style = "margin: 0px;">Мои задачи</h2>
-    </div>
+<div class="header">
+    <h2>Мои задачи</h2>
+</div>
 
-    <div class = "main-content">
-        {% for task in tasks %}
-        <div class="task-card" id="task-{{ task.id }}">
-            <div class = "card-header"> 
-                <div class = "card-title">  {{ task.title }}</div>
-                <span class = "card-status {{task.status}}"> {{ task.get_status_display }}</span>
-            </div>
-            <div class = "card-meta meta-row">
-                <span class = "card-priority"> Приоритет: {{ task.get_priority_display }}</span>
-                <span class = "card-deadline"> {{ task.deadline|date:"d.m" }} </span>
-            </div>
-                
-                <span class = "card-description">{{ task.description|truncatewords:20 }}</span>
-            <div class = "buttons-row">
-                <a href="{% url 'detailed' task.id %}" class = "btn-primary">Открыть</a>
-                <form action = "{% url 'delete' task.id %}" method = "post" class="js-delete-form">
-                    {% csrf_token %}
-                    <button type="submit">Удалить</button>
-                </form>
-            </div>
+<div class="main-content">
+    {% for task in tasks %}
+    <div class="task-card" id="task-{{ task.id }}">
+        <div class="card-header"> 
+            <div class="card-title">{{ task.title }}</div>
+            <span class="card-status {{ task.status }}">{{ task.get_status_display }}</span>
         </div>
-        {% endfor %}
-        <div class = "new-task-card">
-            <form method = "post" class = "js-new-task-card">
+        <div class="card-meta meta-row">
+            <span class="card-priority">Приоритет: {{ task.get_priority_display }}</span>
+            <span class="card-deadline">{{ task.deadline|date:"d.m" }}</span>
+        </div>
+        <div class="card-description">
+            {{ task.description|truncatechars:100|linebreaksbr }}
+        </div>
+        <div class="buttons-row">
+            <a href="{% url 'detailed' task.id %}" class="btn-primary btn-open">Открыть</a>
+            <form action="{% url 'delete' task.id %}" method="post" class="js-delete-form">
                 {% csrf_token %}
-                {%for field in form%}
-                <div class = "form-{{field.name}}">
-                    {{field}}
-                </div>
-                {%endfor%}
-                <button type = "submit" class = "btn-primary"> Отправить </button>
+                <button type="submit" class="btn-delete-card">Удалить</button>
             </form>
         </div>
     </div>
-<script src = "{% static 'tasks/js/main.js' %}"> </script>
+    {% endfor %}
+
+    <div class="new-task-card">
+        <form method="post" class="js-new-task-card">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-field-wrapper">
+                {{ field }}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn-primary">Отправить</button>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'tasks/js/main.js' %}"></script>
 <script>
     const man = new Manager();
-    // создаем новую карточку
-    const createForm = document.querySelector('.js-new-task-card');
+    const container = document.querySelector('.main-content');
 
-    createForm.addEventListener('submit', function(e) {
+    document.querySelector('.js-new-task-card').addEventListener('submit', async function(e) {
         e.preventDefault();
-
-        const formData = new FormData(this);
-        // надо добавить отрисовку карточки
-        man.createTask(this.action, formData);
-});
-    // удаляем карточку
-    document.addEventListener('DOMContentLoaded', function() {
-        const container = document.querySelector('.main-content');
-
-        container.addEventListener('submit', function(event) {
-            const form = event.target.closest('.js-delete-form');
-            if (!form) return;
-
-            event.preventDefault();
-
-            const csrf = form.querySelector('[name=csrfmiddlewaretoken]').value
-            man.deleteTask(form.action, form, csrf)
-            .then((data) => {man.showNotification(data.message)})
+        const resp = await man.createTask(this.action, new FormData(this));
+        man.showNotification(resp.message);
     });
-});
 
+    container.addEventListener('submit', async function(event) {
+        const form = event.target.closest('.js-delete-form');
+        if (!form) return;
+        event.preventDefault();
 
+        const csrf = form.querySelector('[name=csrfmiddlewaretoken]').value;
+        const resp = await man.deleteTask(form.action, csrf);
+        man.showNotification(resp.message);
+        form.closest('.task-card').remove();
+    });
 </script>
 {% endblock %}

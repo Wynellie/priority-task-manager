@@ -8,7 +8,10 @@ class TaskForm(forms.ModelForm):
         model = Task
         fields = ['title', 'description', 'deadline', 'status', 'priority']
         widgets = {
-            'deadline': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'deadline': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={'type': 'date'}
+            ),
         }
 
     def clean_deadline(self):

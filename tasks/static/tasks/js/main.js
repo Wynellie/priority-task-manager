@@ -1,5 +1,5 @@
 class Manager {
-    #makeRequest = async (url, csrf, form = null) => {
+    #makeRequest = async (url, {csrf = null, body = null} = {}) => {
         const reqData = {
             method : 'POST',
             headers : {
@@ -7,40 +7,28 @@ class Manager {
             }
         }
 
-        if (form) {reqData.body = form}
-        else {reqData.headers['X-CSRFToken'] = csrf}
+        if (body) reqData.body = body;
+        else if (csrf) {reqData.headers['X-CSRFToken'] = csrf}
 
         const response = await fetch(url, reqData);
 
-        return response.json()
+        return await response.json()
     }
     showNotification = async (mes) => {
-        let notif = document.createElement('div');
+        const notif = document.createElement('div');
         notif.className = 'notif';
         notif.innerHTML = mes;
         document.body.append(notif);
-        notif.style.opacity = 0;
         notif.addEventListener('animationend', () => {notif.remove()});
     }
     
-    async deleteTask(url, form, csrf){
-        let response = this.#makeRequest(url, csrf);
-        response.then((json) => {
-            if (json.status == 'ok'){
-                form.closest('.task-card').remove();
-            }
-        })
-        return response;
+    async deleteTask(url, csrf){
+        return await this.#makeRequest(url, {csrf});
     }
-    async updateTask(url, form){
-        // довольно странно отправлять null всегда вторым аргументом, хз
-        return this.#makeRequest(url, null, form)
+    async updateTask(url, body){
+        return await this.#makeRequest(url, {body});
     }
-    async createTask(url, form){
-        let response = this.#makeRequest(url, null, form);
-        response.then((json) => {
-            this.showNotification(json.message);
-        })
-        return 
+    async createTask(url, body){
+        return await this.#makeRequest(url, {body});
     }
 }

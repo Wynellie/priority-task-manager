@@ -19,7 +19,7 @@
             <span class="card-deadline">{{ task.deadline|date:"d.m" }}</span>
         </div>
         <div class="card-description">
-            {{ task.description|truncatechars:100|linebreaksbr }}
+            {{ task.description|truncatechars:500|linebreaksbr }}
         </div>
         <div class="buttons-row">
             <a href="{% url 'detailed' task.id %}" class="btn-primary btn-open">Открыть</a>
